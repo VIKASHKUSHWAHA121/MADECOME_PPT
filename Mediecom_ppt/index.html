@@ -1,0 +1,825 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical E-Commerce Platform - Tech Student Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            overflow: hidden; /* ✅ page won't scroll, only slide content scrolls */
+        }
+
+        .presentation-container {
+            width: 100%;
+            max-width: 1000px;
+            perspective: 1000px;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 40px); /* ✅ fits inside viewport (40px = body padding) */
+        }
+
+        .slides-container {
+            position: relative;
+            width: 100%;
+            /* padding-bottom: 56.25%;  ✅ removed fixed 16:9 height */
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 217, 255, 0.3);
+            overflow: hidden;
+            flex: 1; /* ✅ takes all available height above controls */
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+            padding: 60px 40px;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            color: #f0f4ff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: stretch;
+            overflow-y: auto; /* ✅ slide content scrolls inside the frame */
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 10;
+        }
+
+        .slide h1 {
+            font-size: 3.5rem;
+            color: #00d9ff;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(0, 217, 255, 0.4);
+        }
+
+        .slide h2 {
+            font-size: 2.5rem;
+            color: #00d9ff;
+            margin-bottom: 30px;
+            text-shadow: 0 0 15px rgba(0, 217, 255, 0.3);
+        }
+
+        .slide h3 {
+            font-size: 1.5rem;
+            color: #ff006e;
+            margin-bottom: 15px;
+        }
+
+        .slide p {
+            font-size: 1.1rem;
+            color: #b8c5e0;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .slide ul, .slide ol {
+            margin-left: 30px;
+            margin-bottom: 20px;
+            margin-top: 15px;
+        }
+
+        .slide li {
+            font-size: 1rem;
+            color: #b8c5e0;
+            margin-bottom: 15px;
+            line-height: 1.7;
+        }
+
+        .slide strong {
+            color: #00d9ff;
+            font-weight: 600;
+        }
+
+        .slide .subtitle {
+            font-size: 1.5rem;
+            color: #8338ec;
+            margin-bottom: 15px;
+        }
+
+        .slide .highlight {
+            background: rgba(0, 217, 255, 0.1);
+            border-left: 4px solid #00d9ff;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 6px;
+            line-height: 1.8;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .card {
+            background: rgba(131, 56, 236, 0.15);
+            border: 1px solid rgba(131, 56, 236, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            background: rgba(131, 56, 236, 0.25);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(131, 56, 236, 0.2);
+        }
+
+        .card-cyan {
+            background: rgba(0, 217, 255, 0.15);
+            border-color: rgba(0, 217, 255, 0.3);
+        }
+
+        .card-cyan:hover {
+            background: rgba(0, 217, 255, 0.25);
+            box-shadow: 0 8px 20px rgba(0, 217, 255, 0.2);
+        }
+
+        .card-magenta {
+            background: rgba(255, 0, 110, 0.15);
+            border-color: rgba(255, 0, 110, 0.3);
+        }
+
+        .card-magenta:hover {
+            background: rgba(255, 0, 110, 0.25);
+            box-shadow: 0 8px 20px rgba(255, 0, 110, 0.2);
+        }
+
+        .card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .card p {
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #00d9ff 0%, #8338ec 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
+        }
+
+        .slide-counter {
+            color: #00d9ff;
+            font-weight: bold;
+            font-size: 1.1rem;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: linear-gradient(90deg, #00d9ff 0%, #8338ec 50%, #ff006e 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 2px;
+            margin-top: 20px;
+        }
+
+        .center-text {
+            text-align: center;
+        }
+
+        .emoji {
+            font-size: 1.2em;
+            margin-right: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                padding: 40px 20px;
+            }
+
+            .slide h1 {
+                font-size: 2.5rem;
+            }
+
+            .slide h2 {
+                font-size: 1.8rem;
+            }
+
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="slides-container">
+            <!-- Slide 1: Title -->
+            <section class="slide active">
+                <div class="center-text">
+                    <h1><span class="emoji">🏥</span>Medical E-Commerce Platform</h1>
+                    <p class="subtitle">Complete Tech Stack Guide for Students</p>
+                    <p style="font-size: 1.3rem; margin-top: 40px; color: #8338ec;">Build a Real-World Healthcare Application</p>
+                    <p style="margin-top: 60px; color: #94a3b8;">Full-Stack Development | Real-Time Features | Scalability</p>
+                </div>
+            </section>
+
+            <!-- Slide 2: What You'll Learn -->
+            <section class="slide">
+                <h2><span class="emoji">📚</span>What You'll Learn Today</h2>
+                <ul>
+                    <li><strong>Full-Stack Architecture:</strong> How to structure a complete healthcare application</li>
+                    <li><strong>Frontend Development:</strong> React with Hooks, state management, performance optimization</li>
+                    <li><strong>Backend Development:</strong> Node.js/Express APIs, database design, authentication</li>
+                    <li><strong>Real-Time Features:</strong> WebRTC video calls, Socket.io live messaging, geospatial search</li>
+                    <li><strong>Deployment & DevOps:</strong> Docker, CI/CD, cloud infrastructure, scaling strategies</li>
+                </ul>
+            </section>
+
+            <!-- Slide 3: Problem & Solution -->
+            <section class="slide">
+                <h2><span class="emoji">🎯</span>The Problem We're Solving</h2>
+                <div class="grid-2">
+                    <div class="card card-magenta">
+                        <h3>❌ Current Healthcare Issues</h3>
+                        <p>• Fragmented services across platforms</p>
+                        <p>• Poor accessibility for rural areas</p>
+                        <p>• Lack of trust verification</p>
+                        <p>• No real-time blood availability</p>
+                        <p>• Expensive medical consultations</p>
+                    </div>
+                    <div class="card card-cyan">
+                        <h3>✅ Our Solution</h3>
+                        <p>• Single unified platform</p>
+                        <p>• Mobile-first accessibility</p>
+                        <p>• Verified professionals</p>
+                        <p>• Real-time inventory tracking</p>
+                        <p>• Affordable telemedicine</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 4: Tech Stack Overview -->
+            <section class="slide">
+                <h2><span class="emoji">⚙️</span>Complete Tech Stack</h2>
+                <div class="grid-3">
+                    <div class="card">
+                        <h3 style="color: #8338ec;">🎨 Frontend</h3>
+                        <p><strong>React 18+</strong></p>
+                        <p>Hooks & Context API</p>
+                        <p>Tailwind CSS</p>
+                        <p>Vite Builder</p>
+                        <p>Axios for API calls</p>
+                    </div>
+                    <div class="card card-cyan">
+                        <h3 style="color: #00d9ff;">⚡ Backend</h3>
+                        <p><strong>Node.js + Express</strong></p>
+                        <p>JWT Authentication</p>
+                        <p>Socket.io Real-time</p>
+                        <p>TypeScript Optional</p>
+                        <p>Helmet for Security</p>
+                    </div>
+                    <div class="card card-magenta">
+                        <h3 style="color: #ff006e;">🗄️ Database</h3>
+                        <p><strong>MongoDB 6.x</strong></p>
+                        <p>Mongoose ODM</p>
+                        <p>Redis Caching</p>
+                        <p>2dsphere Indexing</p>
+                        <p>Atlas Hosting</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 5: Frontend Architecture -->
+            <section class="slide">
+                <h2><span class="emoji">🎨</span>Frontend Architecture Deep Dive</h2>
+                <div class="grid-2">
+                    <div class="card">
+                        <h3 style="color: #8338ec;">React Patterns</h3>
+                        <ul style="margin-left: 0; padding-left: 20px;">
+                            <li>Functional components with Hooks</li>
+                            <li>Custom hooks for logic reuse</li>
+                            <li>Context API for state</li>
+                            <li>Code splitting with lazy loading</li>
+                            <li>Error boundaries</li>
+                        </ul>
+                    </div>
+                    <div class="card card-cyan">
+                        <h3 style="color: #00d9ff;">Performance Tips</h3>
+                        <ul style="margin-left: 0; padding-left: 20px;">
+                            <li>React.memo for components</li>
+                            <li>useCallback for functions</li>
+                            <li>useMemo for expensive ops</li>
+                            <li>Image optimization</li>
+                            <li>Service Workers</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 6: Backend Architecture -->
+            <section class="slide">
+                <h2><span class="emoji">⚡</span>Backend Architecture Deep Dive</h2>
+                <div class="highlight">
+                    <p><strong>Three-Layer Architecture:</strong></p>
+                    <p>1. <strong>Routes/Controllers</strong> - Handle HTTP requests</p>
+                    <p>2. <strong>Services/Business Logic</strong> - Core application logic</p>
+                    <p>3. <strong>Models/Database</strong> - Data access layer</p>
+                </div>
+                <div class="grid-2">
+                    <div class="card">
+                        <h3 style="color: #8338ec;">API Design</h3>
+                        <p>• RESTful endpoints</p>
+                        <p>• JWT token auth</p>
+                        <p>• Middleware chain</p>
+                        <p>• Error handling</p>
+                    </div>
+                    <div class="card card-cyan">
+                        <h3 style="color: #00d9ff;">Security</h3>
+                        <p>• Helmet.js headers</p>
+                        <p>• Bcrypt hashing</p>
+                        <p>• CORS config</p>
+                        <p>• Rate limiting</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 7: Database Design -->
+            <section class="slide">
+                <h2><span class="emoji">🗄️</span>MongoDB Database Design</h2>
+                <div class="highlight">
+                    <p><strong>Key Collections:</strong></p>
+                    <p>• <strong>users</strong> - Authentication & profiles</p>
+                    <p>• <strong>products</strong> - Medical products catalog</p>
+                    <p>• <strong>doctors</strong> - Healthcare professionals</p>
+                    <p>• <strong>bloodBanks</strong> - Blood facility data</p>
+                    <p>• <strong>orders</strong> - Purchase transactions</p>
+                </div>
+                <div class="grid-2">
+                    <div class="card">
+                        <h3 style="color: #8338ec;">Indexing Strategy</h3>
+                        <p>• Text index on name, description</p>
+                        <p>• Compound index for filtering</p>
+                        <p>• 2dsphere for geospatial</p>
+                    </div>
+                    <div class="card card-cyan">
+                        <h3 style="color: #00d9ff;">Best Practices</h3>
+                        <p>• Schema validation</p>
+                        <p>• Relationship design</p>
+                        <p>• Query optimization</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 8: Real-Time Features -->
+            <section class="slide">
+                <h2><span class="emoji">🔄</span>Real-Time Features Implementation</h2>
+                <div class="grid-2">
+                    <div class="card">
+                        <h3 style="color: #8338ec;">WebRTC for Video</h3>
+                        <p><strong>Peer-to-peer streaming</strong></p>
+                        <p>• Direct browser connection</p>
+                        <p>• End-to-end encryption</p>
+                        <p>• Ultra-low latency</p>
+                        <p>• Server only for signaling</p>
+                    </div>
+                    <div class="card card-cyan">
+                        <h3 style="color: #00d9ff;">Socket.io for Messaging</h3>
+                        <p><strong>Bidirectional communication</strong></p>
+                        <p>• Real-time notifications</p>
+                        <p>• Namespaces & rooms</p>
+                        <p>• Automatic fallback</p>
+                        <p>• Event-driven</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 9: Geospatial Queries -->
+            <section class="slide">
+                <h2><span class="emoji">🗺️</span>Geospatial Search for Blood Banks</h2>
+                <div class="highlight">
+                    <p><strong>MongoDB 2dsphere Index:</strong></p>
+                    <p>Enables proximity-based searches within kilometers</p>
+                </div>
+                <div class="grid-2">
+                    <div class="card">
+                        <h3 style="color: #8338ec;">How It Works</h3>
+                        <p>1. Store coordinates as GeoJSON</p>
+                        <p>2. Create 2dsphere index</p>
+                        <p>3. Query with $near operator</p>
+                        <p>4. Get nearest 10 results</p>
+                    </div>
+                    <div class="card card-cyan">
+                        <h3 style="color: #00d9ff;">Use Cases</h3>
+                        <p>• Find nearest blood banks</p>
+                        <p>• Emergency services</p>
+                        <p>• Delivery time estimates</p>
+                        <p>• Local recommendations</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 10: Authentication System -->
+            <section class="slide">
+                <h2><span class="emoji">🔐</span>Authentication & Security</h2>
+                <div class="grid-2">
+                    <div class="card card-magenta">
+                        <h3 style="color: #ff006e;">JWT Token Flow</h3>
+                        <p><strong>Access Token:</strong> 15 minutes</p>
+                        <p><strong>Refresh Token:</strong> 7 days</p>
+                        <p>• Stateless authentication</p>
+                        <p>• Token rotation on refresh</p>
+                        <p>• HTTP-only cookies</p>
+                    </div>
+                    <div class="card card-cyan">
+                        <h3 style="color: #00d9ff;">Password Security</h3>
+                        <p><strong>Bcrypt Hashing:</strong> 12 rounds</p>
+                        <p>• Never store plaintext</p>
+                        <p>• Timing-safe comparison</p>
+                        <p>• Rainbow table resistant</p>
+                        <p>• Account lockout after 5 tries</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 11: API Design & Endpoints -->
+            <section class="slide">
+                <h2><span class="emoji">📡</span>API Design Principles</h2>
+                <div class="highlight">
+                    <p><strong>REST Conventions:</strong></p>
+                    <p>GET /api/products - Fetch all | POST - Create | PUT - Update | DELETE - Remove</p>
+                </div>
+                <div class="grid-3">
+                    <div class="card">
+                        <h3 style="color: #8338ec;">Example Endpoints</h3>
+                        <p><strong>Auth:</strong></p>
+                        <p>POST /api/auth/register</p>
+                        <p>POST /api/auth/login</p>
+                        <p>POST /api/auth/refresh</p>
+                    </div>
+                    <div class="card card-cyan">
+                        <h3 style="color: #00d9ff;">Products</h3>
+                        <p><strong>Operations:</strong></p>
+                        <p>GET /api/products?page=1</p>
+                        <p>GET /api/products/:id</p>
+                        <p>POST /api/products</p>
+                    </div>
+                    <div class="card card-magenta">
+                        <h3 style="color: #ff006e;">Blood Banks</h3>
+                        <p><strong>Search:</strong></p>
+                        <p>GET /api/blood/search</p>
+                        <p>GET /api/blood/:id</p>
+                        <p>POST /api/blood/book</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 12: DevOps & Deployment -->
+            <section class="slide">
+                <h2><span class="emoji">🚀</span>DevOps & Deployment Strategy</h2>
+                <div class="grid-3">
+                    <div class="card">
+                        <h3 style="color: #8338ec;">Containerization</h3>
+                        <p><strong>Docker</strong></p>
+                        <p>• Single Dockerfile</p>
+                        <p>• Multi-stage builds</p>
+                        <p>• Docker Compose</p>
+                    </div>
+                    <div class="card card-cyan">
+                        <h3 style="color: #00d9ff;">CI/CD Pipeline</h3>
+                        <p><strong>GitHub Actions</strong></p>
+                        <p>• Auto test on push</p>
+                        <p>• Build artifacts</p>
+                        <p>• Auto deploy</p>
+                    </div>
+                    <div class="card card-magenta">
+                        <h3 style="color: #ff006e;">Cloud Hosting</h3>
+                        <p><strong>AWS/GCP</strong></p>
+                        <p>• EC2/Compute Engine</p>
+                        <p>• MongoDB Atlas</p>
+                        <p>• CloudFront CDN</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 13: Scaling Architecture -->
+            <section class="slide">
+                <h2><span class="emoji">📈</span>Scaling to Handle Millions</h2>
+                <div class="highlight">
+                    <p><strong>Horizontal Scaling:</strong> Add more servers instead of making one server more powerful</p>
+                </div>
+                <ul>
+                    <li><strong>Load Balancing:</strong> Distribute traffic across multiple servers</li>
+                    <li><strong>Database Sharding:</strong> Split data across multiple MongoDB instances</li>
+                    <li><strong>Caching Layer:</strong> Redis for frequently accessed data</li>
+                    <li><strong>CDN:</strong> CloudFront for static assets and media</li>
+                    <li><strong>Auto-scaling:</strong> Add/remove servers based on CPU/memory usage</li>
+                </ul>
+            </section>
+
+            <!-- Slide 14: Microservices Roadmap -->
+            <section class="slide">
+                <h2><span class="emoji">🔧</span>Microservices Migration Path</h2>
+                <div class="grid-2">
+                    <div class="card">
+                        <h3 style="color: #8338ec;">Phase 1: Monolith (MVP)</h3>
+                        <p>• Single Express server</p>
+                        <p>• One MongoDB instance</p>
+                        <p>• Microservices-ready design</p>
+                        <p>• Clear service boundaries</p>
+                    </div>
+                    <div class="card card-cyan">
+                        <h3 style="color: #00d9ff;">Phase 2: Extraction</h3>
+                        <p>• Auth service (separate)</p>
+                        <p>• Product service</p>
+                        <p>• Order service</p>
+                        <p>• API Gateway</p>
+                    </div>
+                </div>
+                <div class="highlight">
+                    <p><strong>Benefits:</strong> Independent scaling, faster deployments, technology flexibility, team autonomy</p>
+                </div>
+            </section>
+
+            <!-- Slide 15: Performance Optimization -->
+            <section class="slide">
+                <h2><span class="emoji">⚡</span>Performance Optimization Techniques</h2>
+                <div class="grid-2">
+                    <div class="card">
+                        <h3 style="color: #8338ec;">Frontend Optimization</h3>
+                        <p>• Code splitting by route</p>
+                        <p>• Image lazy loading</p>
+                        <p>• CSS purging</p>
+                        <p>• Gzip compression</p>
+                        <p>• Service Workers offline</p>
+                    </div>
+                    <div class="card card-cyan">
+                        <h3 style="color: #00d9ff;">Backend Optimization</h3>
+                        <p>• Database indexing</p>
+                        <p>• Query optimization</p>
+                        <p>• Redis caching</p>
+                        <p>• Connection pooling</p>
+                        <p>• Response compression</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 16: Testing Strategy -->
+            <section class="slide">
+                <h2><span class="emoji">✅</span>Testing & Quality Assurance</h2>
+                <div class="grid-3">
+                    <div class="card">
+                        <h3 style="color: #8338ec;">Unit Tests</h3>
+                        <p>• Jest for React</p>
+                        <p>• Mock functions</p>
+                        <p>• Snapshot testing</p>
+                    </div>
+                    <div class="card card-cyan">
+                        <h3 style="color: #00d9ff;">Integration Tests</h3>
+                        <p>• API testing</p>
+                        <p>• Database queries</p>
+                        <p>• Real requests</p>
+                    </div>
+                    <div class="card card-magenta">
+                        <h3 style="color: #ff006e;">E2E Tests</h3>
+                        <p>• Cypress/Playwright</p>
+                        <p>• User workflows</p>
+                        <p>• Full scenarios</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 17: Implementation Timeline -->
+            <section class="slide">
+                <h2><span class="emoji">📅</span>Development Roadmap (12 Months)</h2>
+                <div class="grid-2">
+                    <div class="card">
+                        <h3 style="color: #8338ec;">Phase 1 & 2 (24 weeks)</h3>
+                        <p><strong>MVP + Core Features</strong></p>
+                        <p>• Week 1-12: Auth, Products, Cart, Orders</p>
+                        <p>• Week 13-24: Telemedicine, Blood Search, Health Hub</p>
+                    </div>
+                    <div class="card card-cyan">
+                        <h3 style="color: #00d9ff;">Phase 3 & 4 (Months 7-12+)</h3>
+                        <p><strong>Optimization & Expansion</strong></p>
+                        <p>• Mobile apps (APK)</p>
+                        <p>• AI recommendations</p>
+                        <p>• Performance tuning</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 18: Common Challenges & Solutions -->
+            <section class="slide">
+                <h2><span class="emoji">⚠️</span>Common Technical Challenges</h2>
+                <div class="grid-2">
+                    <div class="card card-magenta">
+                        <h3 style="color: #ff006e;">Challenge 1: Database Scaling</h3>
+                        <p><strong>Problem:</strong> Slow queries with millions of records</p>
+                        <p><strong>Solution:</strong> Sharding, read replicas, proper indexing</p>
+                    </div>
+                    <div class="card">
+                        <h3 style="color: #8338ec;">Challenge 2: API Performance</h3>
+                        <p><strong>Problem:</strong> Slow response times under load</p>
+                        <p><strong>Solution:</strong> Redis caching, load balancing, optimization</p>
+                    </div>
+                    <div class="card card-cyan">
+                        <h3 style="color: #00d9ff;">Challenge 3: Real-Time Sync</h3>
+                        <p><strong>Problem:</strong> Data inconsistency across clients</p>
+                        <p><strong>Solution:</strong> WebSocket, event-driven architecture</p>
+                    </div>
+                    <div class="card card-magenta">
+                        <h3 style="color: #ff006e;">Challenge 4: Security</h3>
+                        <p><strong>Problem:</strong> Protecting sensitive health data</p>
+                        <p><strong>Solution:</strong> Encryption, regular audits, compliance</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 19: Required Team Skills -->
+            <section class="slide">
+                <h2><span class="emoji">👥</span>Team Composition & Skills</h2>
+                <div class="grid-3">
+                    <div class="card">
+                        <h3 style="color: #8338ec;">Frontend Developer</h3>
+                        <p>• React expertise</p>
+                        <p>• CSS/animations</p>
+                        <p>• API integration</p>
+                        <p>• Performance focus</p>
+                    </div>
+                    <div class="card card-cyan">
+                        <h3 style="color: #00d9ff;">Backend Developer</h3>
+                        <p>• Node.js/Express</p>
+                        <p>• Database design</p>
+                        <p>• API architecture</p>
+                        <p>• Security practices</p>
+                    </div>
+                    <div class="card card-magenta">
+                        <h3 style="color: #ff006e;">DevOps Engineer</h3>
+                        <p>• Docker/Kubernetes</p>
+                        <p>• CI/CD pipelines</p>
+                        <p>• Cloud platforms</p>
+                        <p>• Infrastructure</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 20: Key Takeaways & Next Steps -->
+            <section class="slide">
+                <div class="center-text">
+                    <h2><span class="emoji">🚀</span>Key Takeaways</h2>
+                    <div class="highlight" style="margin-top: 40px; text-align: left; display: flex; flex-direction: column; gap: 15px;">
+                        <p style="margin: 0;">✨ <strong>Integrated Ecosystem:</strong> One platform serving multiple healthcare needs</p>
+                        <p style="margin: 0;">📊 <strong>Scalability First:</strong> Design for 10K+ concurrent users from day one</p>
+                        <p style="margin: 0;">🔒 <strong>Security Critical:</strong> GDPR, HIPAA, encryption, regular audits</p>
+                        <p style="margin: 0;">💡 <strong>Real-Time Features:</strong> WebRTC + Socket.io for competitive advantage</p>
+                        <p style="margin: 0;">🎯 <strong>Start Simple:</strong> Build MVP first, then scale with microservices</p>
+                    </div>
+                    <p style="margin-top: 50px; color: #00d9ff; font-size: 1.2rem;">Ready to build the future of healthcare tech? 🏥✨</p>
+                </div>
+            </section>
+
+            <!-- Slide 21: Thank You Page -->
+            <section class="slide">
+                <div class="center-text" style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%;">
+                    <h1 style="font-size: 4rem; margin-bottom: 30px;">🙏 Thank You!</h1>
+                    <p style="font-size: 1.5rem; color: #8338ec; margin-bottom: 40px; font-weight: 600;">Medical E-Commerce Platform</p>
+                    
+                    <div class="highlight" style="max-width: 600px; text-align: center; margin: 30px 0;">
+                        <p style="font-size: 1.1rem; color: #f0f4ff; line-height: 1.8; margin: 0;">
+                            We hope this comprehensive guide has equipped you with the knowledge to build scalable, 
+                            secure, and user-centric healthcare applications.
+                        </p>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; max-width: 700px; margin: 40px 0;">
+                        <div class="card" style="text-align: center;">
+                            <h3 style="color: #8338ec; font-size: 1.3rem; margin-bottom: 10px;">📚 Learn More</h3>
+                            <p style="color: #b8c5e0; font-size: 0.95rem;">Explore the full documentation and code examples on GitHub</p>
+                        </div>
+                        <div class="card card-cyan" style="text-align: center;">
+                            <h3 style="color: #00d9ff; font-size: 1.3rem; margin-bottom: 10px;">🚀 Get Started</h3>
+                            <p style="color: #b8c5e0; font-size: 0.95rem;">Clone the repository and start building your healthcare app today</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 50px; border-top: 2px solid rgba(0, 217, 255, 0.2); padding-top: 30px;">
+                        <p style="font-size: 1rem; color: #94a3b8; margin-bottom: 15px;">Connect With Us</p>
+                        <p style="color: #b8c5e0; font-size: 0.95rem;">📧 Email: team@medtech.dev</p>
+                        <p style="color: #b8c5e0; font-size: 0.95rem;">🌐 Website: www.medtech-platform.io</p>
+                        <p style="color: #b8c5e0; font-size: 0.95rem;">💻 GitHub: github.com/medtech-platform</p>
+                    </div>
+
+                    <p style="margin-top: 50px; color: #00d9ff; font-size: 1.1rem; font-style: italic;">
+                        "Building healthcare technology that saves lives" ❤️
+                    </p>
+                </div>
+            </section>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="controls">
+            <button class="btn" onclick="previousSlide()">❮</button>
+            <span class="slide-counter"><span id="current">1</span> / <span id="total">21</span></span>
+            <button class="btn" onclick="nextSlide()">❯</button>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar" id="progress"></div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = document.querySelectorAll('.slide').length;
+        document.getElementById('total').textContent = totalSlides;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            
+            if (n > totalSlides) currentSlide = totalSlides;
+            if (n < 1) currentSlide = 1;
+
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+
+            slides[currentSlide - 1].classList.add('active');
+            document.getElementById('current').textContent = currentSlide;
+
+            const progress = (currentSlide / totalSlides) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+        }
+
+        function nextSlide() {
+            currentSlide++;
+            showSlide(currentSlide);
+        }
+
+        function previousSlide() {
+            currentSlide--;
+            showSlide(currentSlide);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') previousSlide();
+        });
+
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>
